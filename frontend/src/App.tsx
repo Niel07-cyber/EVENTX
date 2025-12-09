@@ -1,35 +1,135 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useMemo } from 'react';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import CategoryFilter from './components/CategoryFilter';
+import EventCard from './components/EventCard';
+import Footer from './components/Footer';
+import EventDetails from './components/EventDetails';
+import { AdminViews } from './components/AdminViews';
+import { EVENTS as INITIAL_EVENTS } from './data/events';
+import type { Category, Event, ViewState, TicketRequest } from './types';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [view, setView] = useState<ViewState>('home');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('All Events');
+  
+  // This state simulates your PostgreSQL Database 'events' table
+  const [events, setEvents] = useState<Event[]>(INITIAL_EVENTS);
+  
+  // This state simulates your PostgreSQL Database 'ticket_requests' table
+  const [ticketRequests, setTicketRequests] = useState<TicketRequest[]>([]);
+  
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
+  // Navigation Handler
+  const navigate = (newView: ViewState, eventData?: Event) => {
+    if (eventData) {
+      setSelectedEvent(eventData);
+    }
+    setView(newView);
+    window.scrollTo(0, 0);
+  };
+
+  const handleAddEvent = (newEvent: Event) => {
+    // In a real app, this would be a POST request to FastAPI
+    setEvents(prev => [newEvent, ...prev]);
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    // In a real app, this would be a DELETE request to FastAPI
+    setEvents(prev => prev.filter(e => e.id !== eventId));
+  };
+
+  const handleUpdateEvent = (updatedEvent: Event) => {
+    // In a real app, this would be a PUT/PATCH request to FastAPI
+    setEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
+  };
+
+  const handleTicketSubmit = (request: Omit<TicketRequest, 'id' | 'timestamp'>) => {
+    // In a real app, this would be a POST request to FastAPI
+    const newTicket: TicketRequest = {
+      ...request,
+      id: Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString()
+    };
+    setTicketRequests(prev => [...prev, newTicket]);
+  };
+
+  // Filter Logic
+  const filteredEvents = useMemo(() => {
+    if (selectedCategory === 'All Events') {
+      return events;
+    }
+    return events.filter(event => event.category === selectedCategory);
+  }, [selectedCategory, events]);
+
+  // View Routing
+  if (view.startsWith('admin')) {
+    return (
+      <AdminViews 
+        view={view} 
+        onNavigate={navigate} 
+        events={events} 
+        ticketRequests={ticketRequests}
+        onAddEvent={handleAddEvent}
+        onDeleteEvent={handleDeleteEvent}
+        onUpdateEvent={handleUpdateEvent}
+        selectedEvent={selectedEvent}
+        onLogout={() => navigate('home')}
+      />
+    );
+  }
+
+  if (view === 'event_details' && selectedEvent) {
+    return (
+      <EventDetails 
+        event={selectedEvent} 
+        onBack={() => navigate('home')} 
+        onSubmitApplication={handleTicketSubmit}
+      />
+    );
+  }
+
+  // Home View
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen flex flex-col font-sans bg-background text-secondary">
+      <Navbar onNavigate={navigate} currentPage={view} />
+      <Hero />
+      
+      <main className="-mt-16 md:-mt-24 pb-20 relative z-10">
+        <CategoryFilter 
+          selectedCategory={selectedCategory} 
+          onSelectCategory={setSelectedCategory} 
+        />
+        
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+            {filteredEvents.map((event) => (
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                onClick={(e) => navigate('event_details', e)}
+              />
+            ))}
+          </div>
+          
+          {filteredEvents.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-xl text-gray-500">No events found for this category.</p>
+              <button 
+                onClick={() => setSelectedCategory('All Events')}
+                className="mt-4 text-primary font-medium hover:underline"
+              >
+                View all events
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
 
-export default App
+      <Footer />
+    </div>
+  );
+};
+
+export default App;
