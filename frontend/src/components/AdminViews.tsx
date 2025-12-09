@@ -468,7 +468,7 @@ export const AdminViews: React.FC<AdminViewsProps> = ({
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <select value={eventForm.category} onChange={e => setEventForm({...eventForm, category: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
+                                <select value={eventForm.category} onChange={e => setEventForm({...eventForm, category: e.target.value as 'Music' | 'Sports' | 'Arts & Theatre' | 'Festivals'})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
                                   <option>Music</option>
                                   <option>Sports</option>
                                   <option>Arts & Theatre</option>
@@ -478,9 +478,10 @@ export const AdminViews: React.FC<AdminViewsProps> = ({
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
-                                <select value={eventForm.type} onChange={e => setEventForm({...eventForm, type: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
+                                <select value={eventForm.type} onChange={e => setEventForm({...eventForm, type: e.target.value as 'Onsite' | 'Remote' | 'Hybrid'})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
                                   <option>Onsite</option>
                                   <option>Remote</option>
+                                  <option>Hybrid</option>
                                 </select>
                             </div>
 
