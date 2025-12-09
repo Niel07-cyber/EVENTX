@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Event, ViewState, TicketRequest } from '../types';
-import { Plus, LogOut, Calendar, MapPin, Clock, Layout, Image as ImageIcon, Edit2, Trash2, Users, ArrowLeft, Search, AlertTriangle, Save } from 'lucide-react';
+import { Plus, LogOut, Calendar, MapPin, Clock, Layout, Image as ImageIcon, Edit2, Trash2, Users, ArrowLeft, AlertTriangle, Save } from 'lucide-react';
 
 interface AdminViewsProps {
   view: ViewState;
@@ -468,7 +468,7 @@ export const AdminViews: React.FC<AdminViewsProps> = ({
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <select value={eventForm.category} onChange={e => setEventForm({...eventForm, category: e.target.value as any})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
+                                <select value={eventForm.category} onChange={e => setEventForm({...eventForm, category: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
                                   <option>Music</option>
                                   <option>Sports</option>
                                   <option>Arts & Theatre</option>
@@ -478,7 +478,7 @@ export const AdminViews: React.FC<AdminViewsProps> = ({
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
-                                <select value={eventForm.type} onChange={e => setEventForm({...eventForm, type: e.target.value as any})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
+                                <select value={eventForm.type} onChange={e => setEventForm({...eventForm, type: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white">
                                   <option>Onsite</option>
                                   <option>Remote</option>
                                 </select>
