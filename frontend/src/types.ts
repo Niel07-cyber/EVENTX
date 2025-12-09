@@ -9,7 +9,7 @@ export interface Event {
   category: string;
   description?: string;
   furtherInfo?: string;
-  type?: 'Remote' | 'Onsite';
+  type?: 'Remote' | 'Onsite' | 'Hybrid';
 }
 
 export type Category = 'All Events' | 'Music' | 'Sports' | 'Arts & Theatre' | 'Festivals';
