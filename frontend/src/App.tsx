@@ -12,6 +12,7 @@ import type { Category, Event, ViewState, TicketRequest } from './types';
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('home');
   const [selectedCategory, setSelectedCategory] = useState<Category>('All Events');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   
   // This state simulates your PostgreSQL Database 'events' table
   const [events, setEvents] = useState<Event[]>(INITIAL_EVENTS);
@@ -57,11 +58,26 @@ const App: React.FC = () => {
 
   // Filter Logic
   const filteredEvents = useMemo(() => {
-    if (selectedCategory === 'All Events') {
-      return events;
+    let filtered = events;
+    
+    // Filter by category
+    if (selectedCategory !== 'All Events') {
+      filtered = filtered.filter(event => event.category === selectedCategory);
     }
-    return events.filter(event => event.category === selectedCategory);
-  }, [selectedCategory, events]);
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(event => 
+        event.title.toLowerCase().includes(query) ||
+        event.location.toLowerCase().includes(query) ||
+        event.category.toLowerCase().includes(query) ||
+        event.description?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [selectedCategory, events, searchQuery]);
 
   // View Routing
   if (view.startsWith('admin')) {
@@ -94,7 +110,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col font-sans bg-background text-secondary">
       <Navbar onNavigate={navigate} currentPage={view} />
-      <Hero />
+      <Hero searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
       <main className="-mt-16 md:-mt-24 pb-20 relative z-10">
         <CategoryFilter 
@@ -115,12 +131,19 @@ const App: React.FC = () => {
           
           {filteredEvents.length === 0 && (
             <div className="text-center py-20">
-              <p className="text-xl text-gray-500">No events found for this category.</p>
+              <p className="text-xl text-gray-500">
+                {searchQuery.trim() 
+                  ? `No events found matching "${searchQuery}"` 
+                  : 'No events found for this category.'}
+              </p>
               <button 
-                onClick={() => setSelectedCategory('All Events')}
+                onClick={() => {
+                  setSelectedCategory('All Events');
+                  setSearchQuery('');
+                }}
                 className="mt-4 text-primary font-medium hover:underline"
               >
-                View all events
+                Clear filters
               </button>
             </div>
           )}
