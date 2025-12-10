@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Event, ViewState, TicketRequest } from '../types';
+import { authAPI } from '../services/api';
 import { Plus, LogOut, Calendar, MapPin, Clock, Layout, Image as ImageIcon, Edit2, Trash2, Users, ArrowLeft, AlertTriangle, Save } from 'lucide-react';
 
 interface AdminViewsProps {
@@ -29,6 +30,7 @@ export const AdminViews: React.FC<AdminViewsProps> = ({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
 
   // Event Form State
   const [editingId, setEditingId] = useState<string | null>(null); // If not null, we are editing
@@ -54,12 +56,19 @@ export const AdminViews: React.FC<AdminViewsProps> = ({
     return ticketRequests.filter(ticket => ticket.eventId === eventId).length;
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'admin') {
+    setLoginError('');
+    setLoginLoading(true);
+
+    try {
+      await authAPI.login(username, password);
       onNavigate('admin_dashboard');
-    } else {
-      setLoginError('Invalid credentials (try admin/admin)');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Login failed';
+      setLoginError(message);
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -167,9 +176,10 @@ export const AdminViews: React.FC<AdminViewsProps> = ({
             {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
             <button 
               type="submit" 
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              disabled={loginLoading}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${loginLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              Sign in
+              {loginLoading ? 'Signing in...' : 'Sign in'}
             </button>
             <div className="text-center">
                 <button type="button" onClick={() => onNavigate('home')} className="text-sm text-gray-500 hover:text-gray-900">Back to Home</button>
