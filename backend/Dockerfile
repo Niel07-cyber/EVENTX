@@ -16,4 +16,4 @@ EXPOSE 3001
 
 # Start the server
 # Ensure your file is actually at src/server.js
-CMD ["node", "src/server.js"]
+CMD ["npm", "start"]
