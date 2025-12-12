@@ -183,16 +183,25 @@ const seedAdminUser = async () => {
       return;
     }
 
-    const insertReq = pool.request();
-    insertReq.input("u", sql.NVarChar, "admin");
-    insertReq.input("p", sql.NVarChar, "admin");
+    const users = [
+      { username: "admin", password: "admin" },
+      { username: "user1", password: "password123" },
+      { username: "user2", password: "password123" },
+      { username: "organizer", password: "organizer123" },
+    ];
 
-    await insertReq.query(
-      "INSERT INTO users (username, password) VALUES (@u, @p)"
-    );
-    console.log("✅ Seeded default admin user (admin/admin)");
+    for (const user of users) {
+      const insertReq = pool.request();
+      insertReq.input("u", sql.NVarChar, user.username);
+      insertReq.input("p", sql.NVarChar, user.password);
+
+      await insertReq.query(
+        "INSERT INTO users (username, password) VALUES (@u, @p)"
+      );
+    }
+    console.log(`✅ Seeded ${users.length} users`);
   } catch (err) {
-    console.error("❌ Error seeding admin:", err);
+    console.error("❌ Error seeding users:", err);
   }
 };
 
