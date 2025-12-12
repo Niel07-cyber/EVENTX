@@ -1,0 +1,15 @@
+# Azure Subscription ID
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# Project Base Name
+project_name = "juniafullstack"
+
+# Deployment Region (e.g., "UK South", "West Europe")
+location = "UK South"
+
+# SQL Server Administrator Password (Must be strong!)
+sql_admin_password = "ChangeMe123!"
+
+# Email Configuration (Optional - for notification features)
+smtp_user = "example@gmail.com"
+smtp_pass = "app-specific-password"
