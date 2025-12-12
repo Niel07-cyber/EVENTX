@@ -210,6 +210,7 @@ The database is currently empty. You must run the seed script to create tables a
 
         ```bash
         cd ../backend
+        npm install
         node src/database/init.js
         ```
 
