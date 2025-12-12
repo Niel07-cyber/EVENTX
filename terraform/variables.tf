@@ -1,22 +1,34 @@
 variable "subscription_id" {
-  description = "The Azure Subscription ID"
   type        = string
-}
-
-variable "location" {
-  description = "The Azure Region"
-  type        = string
-  default     = "France Central"
+  description = "Azure Subscription ID"
 }
 
 variable "project_name" {
-  description = "The name prefix for your resources"
   type        = string
-  default     = "juniafullstack" 
+  description = "Base name for resources"
+  default     = "juniafullstack"
+}
+
+variable "location" {
+  type        = string
+  description = "Azure Region"
+  default     = "France Central"
 }
 
 variable "sql_admin_password" {
-  description = "Password for the SQL Database"
   type        = string
+  description = "Password for SQL Server"
+  sensitive   = true
+}
+
+variable "smtp_user" {
+  type        = string
+  description = "Email address for sending mails"
+  sensitive   = true
+}
+
+variable "smtp_pass" {
+  type        = string
+  description = "App password for the email"
   sensitive   = true
 }
