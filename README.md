@@ -67,10 +67,10 @@ Ensure you have the following installed:
 2.  **Setup Environment Variables:**
     The project includes example configuration files. You need to create the real configuration files for the Client, Server, and Terraform.
 
-    - **Frontend (`client/.env`):**
+    - **Frontend (`frontend/.env`):**
 
       ```bash
-      cp client/.env.example client/.env
+      cp frontend/.env.example frontend/.env
       ```
 
       _Content:_
@@ -79,10 +79,10 @@ Ensure you have the following installed:
       VITE_API_URL="your_backend_api_url_here/api"  # You will update this after Terraform runs
       ```
 
-    - **Backend (`server/.env`):**
+    - **Backend (`backend/.env`):**
 
       ```bash
-      cp server/.env.example server/.env
+      cp backend/.env.example backend/.env
       ```
 
       _Content:_
@@ -112,6 +112,8 @@ Ensure you have the following installed:
       project_name       = "juniafullstack"
       location           = "UK South"
       sql_admin_password = "YourStrongPassword123!"
+      smtp_user          = "your_email@gmail.com"  # Optional
+      smtp_pass          = "your_app_password"     # Optional
       ```
 
 ### 3. Infrastructure Setup (Terraform)
@@ -122,19 +124,7 @@ Ensure you have the following installed:
     az login
     ```
 
-2.  **Configure Secrets:**
-    Create a file named `terraform/terraform.tfvars` to define your sensitive variables.
-
-    ```hcl
-    subscription_id    = "YOUR_SUBSCRIPTION_ID"
-    project_name       = "juniafullstack"
-    location           = "UK South"
-    sql_admin_password = "YourStrongPassword123!"
-    smtp_user          = "your_email@gmail.com"  # Optional
-    smtp_pass          = "your_app_password"     # Optional
-    ```
-
-3.  **Deploy Infrastructure:**
+2.  **Deploy Infrastructure:**
     Navigate to the `terraform` directory and apply the configuration.
 
     ```bash
@@ -146,7 +136,7 @@ Ensure you have the following installed:
     - Type `yes` when prompted.
     - **Wait** approx. 5-10 minutes.
 
-4.  **Save Outputs:**
+3.  **Save Outputs:**
     Once finished, keep the terminal open. You will need the **Outputs** (Registry Login Server, Backend URL, etc.) for the next steps.
 
 ---
@@ -154,6 +144,8 @@ Ensure you have the following installed:
 ### 4. Build & Publish Containers
 
 The infrastructure is ready, but the apps are empty. We must build the code and push it to the Azure Registry.
+
+⚠️ **IMPORTANT:** Docker Desktop must be running before executing these commands. Start Docker Desktop on your machine.
 
 **1. Login to Registry:**
 Use the `acr_login_server` name from the Terraform outputs (e.g., `juniafullstackreg12345`):
@@ -164,7 +156,7 @@ az acr login --name <REGISTRY_NAME_ONLY>
 **2. Configure & Build Frontend:**
 The Frontend needs to know where the Backend lives **before** it is built.
 
-- Open `client/.env` locally.
+- Open `frontend/.env` locally.
 - Update `VITE_API_URL` using the **Backend URL** from Terraform outputs:
 
   ```env
@@ -175,7 +167,7 @@ The Frontend needs to know where the Backend lives **before** it is built.
 - Build and push the frontend:
 
   ```bash
-  cd ../client
+  cd ../frontend
   # Note: Use the full login server URL (e.g., juniafullstackreg12345.azurecr.io)
   docker build --no-cache -t <ACR_LOGIN_SERVER>/junia-frontend:latest .
   docker push <ACR_LOGIN_SERVER>/junia-frontend:latest
@@ -184,7 +176,7 @@ The Frontend needs to know where the Backend lives **before** it is built.
 **3. Build & Push Backend:**
 
 ```bash
-cd ../server
+cd ../backend
 docker build -t <ACR_LOGIN_SERVER>/junia-backend:latest .
 docker push <ACR_LOGIN_SERVER>/junia-backend:latest
 ```
@@ -209,7 +201,7 @@ The database is currently empty. You must run the seed script to create tables a
 
 2.  **Configure Local Script:**
 
-    - Open `server/.env`.
+    - Open `backend/.env`.
     - Update `DB_SERVER` to match your new Azure SQL Server (from Terraform outputs).
     - Set `DB_USER` to `sqladmin` (default admin user).
     - Set `DB_PASSWORD` to match the password you defined in `terraform/terraform.tfvars`.
@@ -217,7 +209,7 @@ The database is currently empty. You must run the seed script to create tables a
 3.  **Run Initialization:**
 
         ```bash
-        cd ../server
+        cd ../backend
         node src/database/init.js
         ```
 
